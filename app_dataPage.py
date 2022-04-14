@@ -26,9 +26,7 @@ class dataPage(GUI):  # 繼承GUI
         button2.grid(column=0,row=1)
         Label1 = tk.Label(frame,text='',width=100)
         Label1.grid(column=1,row=0)
-        var = tk.StringVar()
-        var.set('')
-        Label2 = tk.Label(frame,textvariable=var,width=100)
+        Label2 = tk.Label(frame,text='',width=100)
         Label2['fg'] = '#0000FF'
         Label2.grid(column=1,row=1)
 
@@ -38,9 +36,11 @@ class dataPage(GUI):  # 繼承GUI
             self.path = filename
     
         def Load_data(self):
+            Label2.config(text='')
             controller.Dyes = specDict(self.path)
             controller.frames['ciePlotPage'].Dyes = controller.Dyes
             controller.frames['dyeVisionPage'].Dyes = controller.Dyes
+            controller.frames['hit3cupsPage'].Dyes = controller.Dyes
             m = controller.frames['ciePlotPage'].var1.get()
             ls = sorted(['']+[d for d in controller.Dyes.keys() 
                                if controller.Dyes[d].material==m])
@@ -59,6 +59,12 @@ class dataPage(GUI):  # 繼承GUI
             controller.frames['dyeVisionPage'].cb3_2['values'] = ls
             controller.frames['dyeVisionPage'].cb3_3['values'] = ls
             controller.frames['dyeVisionPage'].cb3_4['values'] = ls
+            m = controller.frames['hit3cupsPage'].var1.get()
+            ls = sorted(['']+[d for d in controller.Dyes.keys() 
+                               if controller.Dyes[d].material==m])
+            controller.frames['hit3cupsPage'].cb1_2['values'] = ls
+            controller.frames['hit3cupsPage'].cb1_3['values'] = ls
+            controller.frames['hit3cupsPage'].cb1_4['values'] = ls
             
-            var.set('檔案已經匯入')
+            Label2.config(text='資料已匯入')
             

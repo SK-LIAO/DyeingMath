@@ -23,9 +23,9 @@ class ciePlotPage(GUI):
         GUI.__init__(self, parent)
         self.name = 'ciePlotPage'
         frame1 = tk.LabelFrame(self, frame_styles, text="CIE Space")
-        frame1.place(relx=0.3, rely=0.02, height=550, width=600)
+        frame1.place(relx=0.33, rely=0.02, height=550, width=570)
         frame2 = tk.LabelFrame(self, frame_styles, text="染劑選擇")
-        frame2.place(relx=0.1, rely=0.02, height=550, width=202)
+        frame2.place(relx=0.1, rely=0.02, height=550, width=232)
         
         Label1 = tk.Label(frame2,text='胚布材質',width=10)
         self.var1 = tk.StringVar()
@@ -112,8 +112,9 @@ class ciePlotPage(GUI):
         Labels = [self.Label12,self.Label13,self.Label14]
         i0=0
         for i,(d,L) in enumerate(zip(dyes,Labels)):
+            L.config(text='')
             if d:
-                L.config(text=round(cAprox[i],4))
+                L.config(text=round(cAprox[i0],4))
                 i0 += 1
         self.Label15.config(text=round(deltaE,2))
             
@@ -129,9 +130,15 @@ class ciePlotPage(GUI):
         self.ax.clear()
         dyes = [self.var2.get(),self.var3.get(),self.var4.get()]
         dyes = [d for d in dyes if d]
+        name = ''
         for d in dyes:
             labs = np.array([Spec2LAB(spec) for spec in self.Dyes[d].spec])
+            if d != name:
+                ind = len(labs)//2+1
+                self.ax.text(labs[ind,1],labs[ind,2],labs[ind,0],d)
+                name = d
             self.ax.plot(labs[:,1],labs[:,2],labs[:,0])
+            
         self.ax.set_xlabel("a* Axis")
         self.ax.set_ylabel("b* Axis")
         self.ax.set_zlabel("L* Axis")

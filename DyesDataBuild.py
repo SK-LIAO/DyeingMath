@@ -36,5 +36,5 @@ def specDict(path):
     return Dyes
 
 if __name__ == '__main__':
-    path = r'D:\A90127\DyingMath\data\PAGE39.xlsx'
+    path = r'D:\A90127\ColorPermutation\excel\spectrum_dye_ver1.xlsx'
     Dyes = specDict(path)

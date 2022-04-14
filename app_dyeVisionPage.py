@@ -12,7 +12,7 @@ from numpy import array
 from app_GUI import GUI
 from readme import frame_styles
 from cieMath import Spec2RGB, LAB2RGB, Spec2LAB,DE2000
-from DyeMerge import SpecEst, Merge, IsFluo, DyeMatch
+from DyeMerge import SpecEst, Merge, IsFluo, DyeMatch, specTrans
 
 # RGB格式顏色轉換爲16進制顏色格式
 def RGB2Hex(RGB):            
@@ -238,11 +238,14 @@ class dyeVisionPage(GUI):
         scales = [self.sc3_1,self.sc3_2,self.sc3_3]
         for d,sc in zip(dyes,scales):
             if d:
+                self.fibspec = self.Dyes[d].spec[0]
                 self.batchspec = self.Dyes[d].spec[0]
                 self.lb4_2.config(bg=RGB2Hex(Spec2RGB(self.batchspec)))
                 sc.config(from_=0,to=self.Dyes[d].conc[-1],
                           resolution=0.0001)
+                sc.set(0) 
         self.batchlab = Spec2LAB(self.batchspec)
+        self.lb4_2.config(bg=RGB2Hex(LAB2RGB(self.batchlab)))
         self.lb3_9.config(text=round(self.batchlab[0]-self.stdlab[0],2))
         self.lb3_10.config(text=round(self.batchlab[1]-self.stdlab[1],2))
         self.lb3_11.config(text=round(self.batchlab[2]-self.stdlab[2],2))
@@ -250,18 +253,14 @@ class dyeVisionPage(GUI):
     #色胚打色變數設定
     def batch3(self):
         dyes = [self.var6.get(),self.var7.get(),self.var8.get()]
-        concls = [self.Dyes[d].conc for d in dyes if d]
-        specls = [self.Dyes[d].spec for d in dyes if d]
-        flls = [IsFluo([d]) for d in dyes if d]
-        cAprox, deltaE, labAprox = DyeMatch(array(self.batchlab),concls,specls,flls)
-        tk.messagebox.showinfo('訊息','初始配方與色胚色差: {}'.format(round(deltaE,1)))
+        self.fibspec = self.batchspec
         scales = [self.sc3_1,self.sc3_2,self.sc3_3]
-        for d,sc,c in zip(dyes,scales,cAprox):
+        for d,sc in zip(dyes,scales):
             if d:
-                sc.config(from_=round(c,4),to=self.Dyes[d].conc[-1],
+                sc.config(from_=0,to=self.Dyes[d].conc[-1],
                           resolution=0.0001)
-        self.lb4_2.config(bg=RGB2Hex(LAB2RGB(labAprox)))
-        self.batchlab = labAprox
+                sc.set(0)
+        self.batchlab = Spec2LAB(self.fibspec)
         self.lb3_9.config(text=round(self.batchlab[0]-self.stdlab[0],2))
         self.lb3_10.config(text=round(self.batchlab[1]-self.stdlab[1],2))
         self.lb3_11.config(text=round(self.batchlab[2]-self.stdlab[2],2))
@@ -273,14 +272,17 @@ class dyeVisionPage(GUI):
         dyes = [self.var6.get(),self.var7.get(),self.var8.get()]
         concs = [c for c,d in zip(concs,dyes) if d]
         dyes = [d for d in dyes if d]
-        fiber = self.Dyes[dyes[0]].spec[0]
         if IsFluo(dyes):
             C = sum(concs)
-            specs = [SpecEst(self.Dyes[d].conc,self.Dyes[d].spec,C,IsFluo([d])) for d in dyes]
-            self.batchspec = Merge(concs,specs,fiber,'nonequi',True)
+            specs = [SpecEst(self.Dyes[d].conc,
+                             specTrans(self.Dyes[d].spec,self.fibspec,IsFluo([d])),
+                             C,IsFluo([d])) for d in dyes]
+            self.batchspec = Merge(concs,specs,self.fibspec,'nonequi',True)
         else:
-            specs = [SpecEst(self.Dyes[d].conc,self.Dyes[d].spec,c,IsFluo([d])) for c,d in zip(concs,dyes)]
-            self.batchspec = Merge(concs,specs,fiber,'KSadd',False)
+            specs = [SpecEst(self.Dyes[d].conc,
+                             specTrans(self.Dyes[d].spec,self.fibspec,IsFluo([d])),
+                             c,IsFluo([d])) for c,d in zip(concs,dyes)]
+            self.batchspec = Merge(concs,specs,self.fibspec,'KSadd',False)
         self.lb4_2.config(bg=RGB2Hex(Spec2RGB(self.batchspec)))
         self.batchlab = Spec2LAB(self.batchspec)
         self.lb3_9.config(text=round(self.batchlab[0]-self.stdlab[0],2))

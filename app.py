@@ -13,6 +13,7 @@ from app_ciePlotPage import ciePlotPage
 from app_dyeRevisePage import dyeRevisePage
 from app_dyeVisionPage import dyeVisionPage
 from app_authorPage import authorPage
+from app_3cupsPage import hit3cupsPage
 
 
 class MyApp(tk.Tk):
@@ -34,7 +35,7 @@ class MyApp(tk.Tk):
         self.Dyes = {} #放置染劑字典
         self.Dyes[''] = None
         #製作各頁面
-        pages = (dataPage,ciePlotPage,dyeVisionPage,dyeRevisePage,authorPage)
+        pages = (dataPage,ciePlotPage,dyeVisionPage,hit3cupsPage,dyeRevisePage,authorPage)
         for i,F in enumerate(pages):
             frame = F(main_frame, self) #建立框架
             self.frames[frame.name] = frame #將框架存入 self 裡
@@ -64,7 +65,7 @@ class MyApp(tk.Tk):
                 return True
             except:
                 return False
-    
+
         
 class MenuBar(tk.Menu):
     def __init__(self, parent):
@@ -80,13 +81,13 @@ class MenuBar(tk.Menu):
         self.add_cascade(label="分析", menu=menu_analysis)
         menu_analysis.add_command(label='混色空間', command=lambda: parent.show_frame('ciePlotPage'))
         menu_analysis.add_command(label='染色視覺化',command=lambda: parent.show_frame('dyeVisionPage'))
-        menu_analysis.add_command(label='配方修正', command=lambda: parent.show_frame('dyeRevisePage'))
+        menu_analysis.add_command(label='模擬調修',command=lambda: parent.show_frame('hit3cupsPage'))
+        menu_analysis.add_command(label='實際調修', command=lambda: parent.show_frame('dyeRevisePage'))
 
         menu_expression = tk.Menu(self, tearoff=0)
         self.add_cascade(label="說明", menu=menu_expression)
         menu_expression.add_command(label="關於App", command=lambda: parent.show_frame('authorPage'))
 
-        
      
 root = MyApp()
 root.title("利勤打色研究App")
