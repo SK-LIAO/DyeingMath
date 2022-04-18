@@ -96,7 +96,7 @@ class hit3cupsPage(GUI):
         self.et1_6.grid(row=5,column=3,sticky='nsew')
         bt1_1 = tk.Button(frame1,text='模擬線性調修',command=self.analysis1,fg='#00F')
         bt1_2 = tk.Button(frame1,text='建議三杯打色',command=self.analysis2,fg='#00F')
-        lb1_16 = tk.Label(frame1,text="配方1_1",fg="#00F")
+        lb1_16 = tk.Label(frame1,text="修正1",fg="#00F")
         lb1_13 = tk.Label(frame1,text='配方2',fg='#00F')
         lb1_14 = tk.Label(frame1,text='配方3',fg='#00F')
         lb1_15 = tk.Label(frame1,text='配方4',fg='#00F')
