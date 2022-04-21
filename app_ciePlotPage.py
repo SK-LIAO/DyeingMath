@@ -16,7 +16,7 @@ from itertools import permutations
 from app_GUI import GUI
 from readme import frame_styles
 from DyeMerge import SpecEst, Merge, IsFluo, DyeMatch
-from cieMath import Spec2LAB
+from cieMath import Spec2LAB,DECMC
 
 class ciePlotPage(GUI):
     def __init__(self, parent, controller):
@@ -108,7 +108,7 @@ class ciePlotPage(GUI):
         concls = [self.Dyes[d].conc for d in dyes if d]
         specls = [self.Dyes[d].spec for d in dyes if d]
         flls = [IsFluo([d]) for d in dyes if d]
-        cAprox, deltaE, labAprox = DyeMatch(lab,concls,specls,flls)
+        cAprox, _, labAprox = DyeMatch(lab,concls,specls,flls)
         Labels = [self.Label12,self.Label13,self.Label14]
         i0=0
         for i,(d,L) in enumerate(zip(dyes,Labels)):
@@ -116,7 +116,7 @@ class ciePlotPage(GUI):
             if d:
                 L.config(text=round(cAprox[i0],4))
                 i0 += 1
-        self.Label15.config(text=round(deltaE,2))
+        self.Label15.config(text=round(DECMC(lab,labAprox),2))
             
         
     def plotStd(self):

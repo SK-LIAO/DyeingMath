@@ -70,7 +70,17 @@ def LCH2LAB(lch):
     deg = H/180*np.pi
     return np.array([L,C*np.cos(deg),C*np.sin(deg)])
 
-
+#平面直角坐標(a,b) 轉換極座標(C,H) , 0<=H<360
+def AB2CH(ls):
+    a, b = ls[0], ls[1]
+    C = np.sqrt(a**2+b**2)
+    yi = 180/np.pi
+    arct = np.arctan2(b,a)
+    if b>=0:
+        H = arct*yi
+    else:
+        H = arct*yi + 360
+    return np.array([C, H])
 
 def XYZ2RGB(xyz):
     M_inv = np.array([[3.2404542, -1.5371385, -0.4985314],
@@ -154,6 +164,47 @@ def LCH2RGB(lch):
 def RGB2LCH(rgb):
     return LAB2LCH(RGB2LAB(rgb))
 
+#給定標準樣及批次樣的波長對映LAB  回傳CIE1974色差 DE74
+def DE74(Lab1,Lab2):
+    if len(Lab1) == 3:
+        [StL, StA, StB] = Lab1
+        [BaL, BaA, BaB] = Lab2
+        DE74 = np.sqrt((StL-BaL)**2+(StA-BaA)**2+(StB-BaB)**2)
+    else:
+        DE74 = False
+    return DE74
+
+#給定標準樣及批次樣的波長對映LAB  回傳CIECMC色差 DECMC
+def DECMC(Lab1,Lab2):
+    if len(Lab1) == 3:
+        [StL, StA, StB] = Lab1
+        [BaL, BaA, BaB] = Lab2
+        l, c = 2, 1
+        yi = 180/np.pi
+        [StC, StH] = AB2CH([StA,StB])
+        [BaC, BaH] = AB2CH([BaA,BaB])
+        
+        DL = abs(StL-BaL)
+        DC = abs(StC-BaC)
+        DA = abs(StA-BaA)
+        DB = abs(StB-BaB)
+        DH = np.sqrt(DA**2+DB**2-DC**2)
+            
+        F = np.sqrt(StC**4/(StC**4+1900))
+        if 164<=StH<=345:
+            T = 0.56+abs(0.2*np.cos((StH+168)/yi))
+        else:
+            T = 0.36+abs(0.4*np.cos((StH+35)/yi))
+        if StL<16:
+            SL = 0.511
+        else:
+            SL = 0.040975*StL/(1+0.01765*StL)
+        SC = 0.0638*StC/(1+0.0131*StC) + 0.638
+        SH = SC*(T*F+1-F)
+        DECMC = np.sqrt((DL/l/SL)**2+(DC/c/SC)**2+(DH/SH)**2)
+    else:
+        DECMC = False
+    return DECMC
     
 #給定標準樣及批次樣的波長對映陣列 LAB1 LAB2  回傳CIE2000色差 DE00    
 def DE2000(Lab1,Lab2):

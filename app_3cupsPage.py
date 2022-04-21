@@ -13,9 +13,8 @@ from matplotlib.figure import Figure
 from app_GUI import GUI
 from readme import frame_styles
 from numpy import array
-from DyeMerge import ConcCentroid
 from DyeMerge import SpecEst, Merge, IsFluo, DyeMatch,tetrahedron
-from cieMath import Spec2RGB, LAB2RGB, Spec2LAB,DE2000
+from cieMath import Spec2LAB
 
 class hit3cupsPage(GUI):
     def __init__(self, parent, controller):
@@ -148,7 +147,7 @@ class hit3cupsPage(GUI):
         concls = [self.Dyes[d].conc for d in dyes]
         specls = [self.Dyes[d].spec for d in dyes]
         flls = [IsFluo([d]) for d in dyes if d]
-        cAprox, deltaE, labAprox = DyeMatch(lab_,concls,specls,flls)
+        cAprox, _, labAprox = DyeMatch(lab_,concls,specls,flls)
         j0 = 0
         for j in range(1,4):
             self.lb[(7,j)].config(text='')
@@ -180,6 +179,8 @@ class hit3cupsPage(GUI):
         for i,d in zip([9,10,11],[DLab1,DLab2,DLab3]):
             lab = self.stdlab + d-DLab
             cAprox, deltaE, labAprox = DyeMatch(lab,concls,specls,flls)
+            if deltaE>0.2:
+                tk.messagebox.showinfo(title='注意', message='配方{}誤差大於0.2'.format(i-7))
             j0 = 0
             for j in range(1,4):
                 self.lb[(i,j)].config(text='')
@@ -189,6 +190,7 @@ class hit3cupsPage(GUI):
                 
         mat = array([DLab,DLab1,DLab2,DLab3])
         center = array([0,0,0])
+        
         self.ax.clear()
         curve1 = array([mat[0],center,mat[1],center,mat[2],center,mat[3]])
         curve2 = array([mat[0],mat[1],mat[2],mat[0],mat[3],mat[1],mat[3],mat[2]])

@@ -13,9 +13,9 @@ Created on Fri Apr  9 08:12:54 2021
 
 import numpy as np
 
-from cieMath import KS, KS2R, Spec2LAB,Spec2RGB ,DE2000
-from itertools import product, combinations
-from math import factorial
+from cieMath import KS, KS2R, Spec2LAB,Spec2RGB, DE74,DECMC
+from itertools import product
+
 
 def SpecEst(concls,specls,C,flour=False):     
     if C<0:
@@ -118,6 +118,14 @@ def Merge(concs,specs,specfiber,method='KSadd',flour=False):
         R_est = np.array([KS2R(i) for i in ks_est])
     return R_est
 
+#給三染劑濃度,名稱,染劑字典
+#回傳混色後理論光譜
+def Dyes2Spec(concs,names,Dyes):
+    fib = Dyes[names[0]].spec[0]
+    C = sum(concs)
+    specs = [SpecEst(Dyes[n].conc,Dyes[n].spec,C,False) for c,n in zip(concs,names)]
+    return Merge(concs, specs, fib, 'equi',False)
+
 
 def IsFluo(dyes):
     FDye = ['TF405','TF406','TR106','TR117','TY206','NR105','NY202',
@@ -145,7 +153,7 @@ def DyeMatch(targetLAB,conclsls,speclsls,flls):
             for cs,specs in zip(product(*conclsls),product(*speclsls)):
                 mer_specs += [Merge(cs,specs,specfiber,'KSadd',False)]
         LabCs = [(Spec2LAB(s),c) for s,c in zip(mer_specs,product(*conclsls))]
-        DeLabCs = [(DE2000(i[0],targetLAB),i[0],i[1]) for i in LabCs]
+        DeLabCs = [(DE74(i[0],targetLAB),i[0],i[1]) for i in LabCs]
         S = sorted(DeLabCs,key= lambda x:x[0])
         return S[0][0],np.array(S[0][1]) ,np.array(S[0][2])  
     #設定 初始色差 與 濃度
@@ -157,7 +165,7 @@ def DyeMatch(targetLAB,conclsls,speclsls,flls):
     #計算差分(用來取代微分)
     def dE_dConc(concs,lab):
         DEDC = np.zeros(len(concs))
-        dc = 0.0000001 #配方濃度精度0.0001, 取精度的1/1000取代微分
+        dc = 0.000001 #配方濃度精度0.0001, 取精度的1/1000取代微分
         for i,c in enumerate(concs):
             newconcs = np.array([c+dc if i==j else c for j,c in enumerate(concs)])
             if any(flls):
@@ -167,7 +175,7 @@ def DyeMatch(targetLAB,conclsls,speclsls,flls):
             else:
                 specs = np.array([SpecEst(conclsls[i], speclsls[i],c,flls[i]) for i,c in enumerate(newconcs)])
                 newlab = Spec2LAB(Merge(newconcs, specs, specfiber,'KSadd',False))
-            DEDC[i] = (DE2000(newlab,targetLAB)-DE2000(lab,targetLAB))/dc
+            DEDC[i] = (DE74(newlab,targetLAB)-DE74(lab,targetLAB))/dc
         if np.linalg.norm(DEDC)>1:
             DEDC = DEDC/np.linalg.norm(DEDC)
         return DEDC
@@ -183,10 +191,10 @@ def DyeMatch(targetLAB,conclsls,speclsls,flls):
         #測試修正後色差，若有變小則取代、若無變小則修正步進距離參數 n
         specs_temp = np.array([SpecEst(conclsls[i], speclsls[i], c) for i,c in enumerate(cAprox_temp)])
         lab_temp = Spec2LAB(Merge(cAprox_temp, specs_temp, specfiber))
-        if DE2000(targetLAB,lab_temp) >= deltaE:
+        if DE74(targetLAB,lab_temp) >= deltaE:
             n += 1
         else:
-            deltaE = DE2000(targetLAB,lab_temp)
+            deltaE = DE74(targetLAB,lab_temp)
             cAprox = cAprox_temp
             labAprox = lab_temp
     return cAprox, deltaE, labAprox
@@ -273,7 +281,7 @@ def ContactDE(card1,card2,Recipes,Dyes):
                               SpecEst(Dyes[n].conc,specTrans(Dyes[n].spec,specfib,IsFluo([n])),c,IsFluo([n])) for c,n in zip(conc_mer,name)]
                 spec_mer = Merge(conc_mer, specls_mer, specfib,'KSadd',False)                   
             #存進色差矩陣
-            err[i] = DE2000(Spec2LAB(spec_re),Spec2LAB(spec_mer))
+            err[i] = DECMC(Spec2LAB(spec_re),Spec2LAB(spec_mer))
     return round(np.max(err),2)
 
 #給定工卡號、配方字典、光譜字典

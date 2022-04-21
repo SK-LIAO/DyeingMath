@@ -11,8 +11,8 @@ from numpy import array
 
 from app_GUI import GUI
 from readme import frame_styles
-from cieMath import Spec2RGB, LAB2RGB, Spec2LAB,DE2000
-from DyeMerge import SpecEst, Merge, IsFluo, DyeMatch, specTrans
+from cieMath import Spec2RGB, LAB2RGB, Spec2LAB,DECMC
+from DyeMerge import SpecEst, Merge, IsFluo, specTrans
 
 # RGB格式顏色轉換爲16進制顏色格式
 def RGB2Hex(RGB):            
@@ -140,16 +140,19 @@ class dyeVisionPage(GUI):
                                    values = [''],
                                    width=6,state="readonly")
         self.cb3_2.current(0)
+        self.cb3_2.bind('<<ComboboxSelected>>', self.conc_changed1)
         self.var7 = tk.StringVar()
         self.cb3_3 = ttk.Combobox(frame3,textvariable=self.var7,
                                    values = [''],
                                    width=6,state="readonly")
         self.cb3_3.current(0)
+        self.cb3_3.bind('<<ComboboxSelected>>', self.conc_changed2)
         self.var8 = tk.StringVar()
         self.cb3_4 = ttk.Combobox(frame3,textvariable=self.var8,
                                    values = [''],
                                    width=6,state="readonly")
         self.cb3_4.current(0)
+        self.cb3_4.bind('<<ComboboxSelected>>', self.conc_changed3)
         self.sc3_1 = tk.Scale(frame3,from_= 0,to=1,resolution=0.0001,command=self.batch4,orient='horizontal')
         self.sc3_2 = tk.Scale(frame3,from_= 0,to=1,resolution=0.0001,command=self.batch4,orient='horizontal')
         self.sc3_3 = tk.Scale(frame3,from_= 0,to=1,resolution=0.0001,command=self.batch4,orient='horizontal')
@@ -249,7 +252,7 @@ class dyeVisionPage(GUI):
         self.lb3_9.config(text=round(self.batchlab[0]-self.stdlab[0],2))
         self.lb3_10.config(text=round(self.batchlab[1]-self.stdlab[1],2))
         self.lb3_11.config(text=round(self.batchlab[2]-self.stdlab[2],2))
-        self.lb3_12.config(text=round(DE2000(self.batchlab,self.stdlab),2))
+        self.lb3_12.config(text=round(DECMC(self.batchlab,self.stdlab),2))
     #色胚打色變數設定
     def batch3(self):
         dyes = [self.var6.get(),self.var7.get(),self.var8.get()]
@@ -264,7 +267,7 @@ class dyeVisionPage(GUI):
         self.lb3_9.config(text=round(self.batchlab[0]-self.stdlab[0],2))
         self.lb3_10.config(text=round(self.batchlab[1]-self.stdlab[1],2))
         self.lb3_11.config(text=round(self.batchlab[2]-self.stdlab[2],2))
-        self.lb3_12.config(text=round(DE2000(self.batchlab,self.stdlab),2))
+        self.lb3_12.config(text=round(DECMC(self.batchlab,self.stdlab),2))
                                   
     #滾軸輸入
     def batch4(self,*arg):
@@ -288,7 +291,7 @@ class dyeVisionPage(GUI):
         self.lb3_9.config(text=round(self.batchlab[0]-self.stdlab[0],2))
         self.lb3_10.config(text=round(self.batchlab[1]-self.stdlab[1],2))
         self.lb3_11.config(text=round(self.batchlab[2]-self.stdlab[2],2))
-        self.lb3_12.config(text=round(DE2000(self.batchlab,self.stdlab),2))
+        self.lb3_12.config(text=round(DECMC(self.batchlab,self.stdlab),2))
         
     def dyes_changed1(self,*arg):
         m = self.var1.get()
@@ -305,3 +308,16 @@ class dyeVisionPage(GUI):
         self.cb3_2['values'] = ls
         self.cb3_3['values'] = ls
         self.cb3_4['values'] = ls
+        
+    def conc_changed1(self,*arg):
+        self.sc3_1.config(from_=0,to=self.Dyes[self.var6.get()].conc[-1],
+                          resolution=0.0001)
+        self.sc3_1.set(0)
+    def conc_changed2(self,*arg):
+        self.sc3_2.config(from_=0,to=self.Dyes[self.var7.get()].conc[-1],
+                          resolution=0.0001)
+        self.sc3_2.set(0)
+    def conc_changed3(self,*arg):
+        self.sc3_3.config(from_=0,to=self.Dyes[self.var8.get()].conc[-1],
+                          resolution=0.0001)
+        self.sc3_3.set(0)
