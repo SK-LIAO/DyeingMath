@@ -9,6 +9,7 @@ import tkinter as tk
 import tkinter.messagebox
 
 from app_dataPage import dataPage
+from app_specPage import specPage
 from app_ciePlotPage import ciePlotPage
 from app_dyeRevisePage import dyeRevisePage
 from app_dyeVisionPage import dyeVisionPage
@@ -35,7 +36,7 @@ class MyApp(tk.Tk):
         self.Dyes = {} #放置染劑字典
         self.Dyes[''] = None
         #製作各頁面
-        pages = (dataPage,ciePlotPage,dyeVisionPage,hit3cupsPage,dyeRevisePage,authorPage)
+        pages = (dataPage,specPage,ciePlotPage,dyeVisionPage,hit3cupsPage,dyeRevisePage,authorPage)
         for i,F in enumerate(pages):
             frame = F(main_frame, self) #建立框架
             self.frames[frame.name] = frame #將框架存入 self 裡
@@ -79,6 +80,7 @@ class MenuBar(tk.Menu):
 
         menu_analysis = tk.Menu(self, tearoff=0)
         self.add_cascade(label="分析", menu=menu_analysis)
+        menu_analysis.add_command(label='光譜檢視', command=lambda: parent.show_frame('specPage'))
         menu_analysis.add_command(label='混色空間', command=lambda: parent.show_frame('ciePlotPage'))
         menu_analysis.add_command(label='染色視覺化',command=lambda: parent.show_frame('dyeVisionPage'))
         menu_analysis.add_command(label='模擬調修',command=lambda: parent.show_frame('hit3cupsPage'))

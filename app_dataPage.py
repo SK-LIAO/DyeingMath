@@ -41,6 +41,12 @@ class dataPage(GUI):  # 繼承GUI
             controller.frames['ciePlotPage'].Dyes = controller.Dyes
             controller.frames['dyeVisionPage'].Dyes = controller.Dyes
             controller.frames['hit3cupsPage'].Dyes = controller.Dyes
+            controller.frames['specPage'].Dyes = controller.Dyes
+            m = controller.frames['specPage'].var1.get()
+            ls = sorted(['']+[d for d in controller.Dyes.keys() 
+                               if controller.Dyes[d].material==m])
+            controller.frames['specPage'].Combobox1_2['values'] = ls
+            controller.frames['specPage'].Combobox1_3['values'] = ls
             m = controller.frames['ciePlotPage'].var1.get()
             ls = sorted(['']+[d for d in controller.Dyes.keys() 
                                if controller.Dyes[d].material==m])

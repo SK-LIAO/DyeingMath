@@ -5,13 +5,13 @@ Created on Mon Mar 28 08:16:29 2022
 @author: A90127
 """
 import tkinter as tk
+import tkinter.messagebox
 from tkinter import ttk
-from numpy import array
-
+from numpy import array,argmax
 
 from app_GUI import GUI
 from readme import frame_styles
-from cieMath import Spec2RGB, LAB2RGB, Spec2LAB,DECMC
+from cieMath import Spec2RGB, LAB2RGB, Spec2LAB,DECMC, KS
 from DyeMerge import SpecEst, Merge, IsFluo, specTrans
 
 # RGB格式顏色轉換爲16進制顏色格式
@@ -44,9 +44,11 @@ class dyeVisionPage(GUI):
         self.txt1_1 = tk.Text(frame1,width=10,height=36)
         bt1_1 = tk.Button(frame1,text='輸入標準樣',fg='#00F',command=self.std1)
         bt1_2 = tk.Button(frame1,text='輸入對照樣',fg='#00F',command=self.batch1)
+        bt1_3 = tk.Button(frame1,text='比較力度',fg='#00F',command=self.strength)
         self.txt1_1.pack(fill='both')
         bt1_1.pack(fill='both')
         bt1_2.pack(fill='both')
+        bt1_3.pack(fill='both')
         
         lb2_1_1 = tk.Label(frame2_1,text='L',width=3)
         lb2_1_1.grid(row=0,column=0,sticky='nsew')
@@ -184,7 +186,16 @@ class dyeVisionPage(GUI):
         self.lb4_2 = tk.Label(frame4,bg='#000')
         self.lb4_1.grid(row=0,column=0,ipadx=142,ipady=126,sticky='nesw')
         self.lb4_2.grid(row=1,column=0,ipadx=142,ipady=125,sticky='nesw')
-        
+    
+    #挑出標準樣與對照樣的相對力度:
+    def strength(self):
+        spec1 = self.stdspec[7:]
+        spec2 = self.batchspec[7:]
+        KS1 = [KS(r) for r in spec1]
+        KS2 = [KS(r) for r in spec2]
+        i0 = argmax(KS1)
+        stre =  round(KS2[i0]/KS1[i0]*100,1)
+        tk.messagebox.showinfo(title='相對力度計算', message='吸收率最大: {}nm\n標準樣絕對力度: {}\n對照樣絕對力度: {}\n相對力度: {}%'.format(i0*10+430,round(KS1[i0],4),round(KS2[i0],4),stre))
         
     #標準樣光譜輸入    
     def std1(self):
