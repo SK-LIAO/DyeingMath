@@ -306,16 +306,16 @@ class dyeVisionPage(GUI):
         
     def dyes_changed1(self,*arg):
         m = self.var1.get()
-        ls = sorted(['']+[d for d in self.Dyes.keys() 
-                           if self.Dyes[d].material==m])
+        ls = ['']+sorted([d for d in self.Dyes.keys() 
+                           if self.Dyes[d].material==m], key=lambda x:x[2:])
         self.cb2_2_2['values'] = ls
         self.cb2_2_3['values'] = ls
         self.cb2_2_4['values'] = ls
         
     def dyes_changed2(self,*arg):
         m = self.var5.get()
-        ls = sorted(['']+[d for d in self.Dyes.keys() 
-                           if self.Dyes[d].material==m])
+        ls = ['']+sorted([d for d in self.Dyes.keys() 
+                           if self.Dyes[d].material==m], key=lambda x:x[2:])
         self.cb3_2['values'] = ls
         self.cb3_3['values'] = ls
         self.cb3_4['values'] = ls

@@ -22,12 +22,12 @@ import numpy as np
 from cieData import observer, SPD_D65, XYZ_D65
 #給定表觀濃度ks 回傳反射率 
 def KS2R(ks):
-    r = 1+ks-np.sqrt(ks**2+2*ks)
+    r = 1+abs(ks)-np.sign(ks)*np.sqrt((ks**2+2*abs(ks)))
     return r
 #給特定波長反射率r 回傳表觀濃度KS值 
 # *注意反射率r必須<=1
 def KS(r):
-    ks = (1-r)**2/2/r
+    ks = np.sign(1-r)*(1-r)**2/2/r
     return ks
 #給標準樣及批次樣的波長對映反射率 ls1 & ls2 回傳力度
 def Strength(ls1, ls2):

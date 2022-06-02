@@ -36,38 +36,46 @@ class dataPage(GUI):  # 繼承GUI
             self.path = filename
     
         def Load_data(self):
+            #給每個分頁存入染劑字典
             Label2.config(text='')
             controller.Dyes = specDict(self.path)
             controller.frames['ciePlotPage'].Dyes = controller.Dyes
             controller.frames['dyeVisionPage'].Dyes = controller.Dyes
             controller.frames['hit3cupsPage'].Dyes = controller.Dyes
             controller.frames['specPage'].Dyes = controller.Dyes
+            #替換每個分頁染劑選項
             m = controller.frames['specPage'].var1.get()
-            ls = sorted(['']+[d for d in controller.Dyes.keys() 
-                               if controller.Dyes[d].material==m])
+            ls = ['']+sorted([d for d in controller.Dyes.keys() 
+                               if controller.Dyes[d].material==m], key=lambda x:x[2:])
             controller.frames['specPage'].Combobox1_2['values'] = ls
             controller.frames['specPage'].Combobox1_3['values'] = ls
+            controller.frames['specPage'].Combobox1_1_1['values'] = ls
+            controller.frames['specPage'].Combobox1_1_2['values'] = ls
+            controller.frames['specPage'].Combobox1_1_3['values'] = ls
+            controller.frames['specPage'].Combobox1_1_4['values'] = ls
+            controller.frames['specPage'].Combobox1_1_5['values'] = ls
+            controller.frames['specPage'].Combobox1_1_6['values'] = ls
             m = controller.frames['ciePlotPage'].var1.get()
-            ls = sorted(['']+[d for d in controller.Dyes.keys() 
-                               if controller.Dyes[d].material==m])
+            ls = ['']+sorted([d for d in controller.Dyes.keys() 
+                               if controller.Dyes[d].material==m], key=lambda x:x[2:])
             controller.frames['ciePlotPage'].Combobox2_1['values'] = ls
             controller.frames['ciePlotPage'].Combobox3_1['values'] = ls
             controller.frames['ciePlotPage'].Combobox4_1['values'] = ls
             m = controller.frames['dyeVisionPage'].var1.get()
-            ls = sorted(['']+[d for d in controller.Dyes.keys() 
-                               if controller.Dyes[d].material==m])
+            ls = ['']+sorted([d for d in controller.Dyes.keys() 
+                               if controller.Dyes[d].material==m], key=lambda x:x[2:])
             controller.frames['dyeVisionPage'].cb2_2_2['values'] = ls
             controller.frames['dyeVisionPage'].cb2_2_3['values'] = ls
             controller.frames['dyeVisionPage'].cb2_2_4['values'] = ls
             m = controller.frames['dyeVisionPage'].var5.get()
-            ls = sorted(['']+[d for d in controller.Dyes.keys() 
-                               if controller.Dyes[d].material==m])
+            ls = ['']+sorted([d for d in controller.Dyes.keys() 
+                               if controller.Dyes[d].material==m], key=lambda x:x[2:])
             controller.frames['dyeVisionPage'].cb3_2['values'] = ls
             controller.frames['dyeVisionPage'].cb3_3['values'] = ls
             controller.frames['dyeVisionPage'].cb3_4['values'] = ls
             m = controller.frames['hit3cupsPage'].var1.get()
-            ls = sorted(['']+[d for d in controller.Dyes.keys() 
-                               if controller.Dyes[d].material==m])
+            ls = ['']+sorted([d for d in controller.Dyes.keys() 
+                               if controller.Dyes[d].material==m], key=lambda x:x[2:])
             controller.frames['hit3cupsPage'].cb1_2['values'] = ls
             controller.frames['hit3cupsPage'].cb1_3['values'] = ls
             controller.frames['hit3cupsPage'].cb1_4['values'] = ls

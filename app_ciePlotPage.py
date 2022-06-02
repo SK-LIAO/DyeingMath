@@ -188,8 +188,8 @@ class ciePlotPage(GUI):
         
     def dyes_changed(self,*arg):
         m = self.var1.get()
-        ls = sorted(['']+[d for d in self.Dyes.keys() 
-                           if self.Dyes[d].material==m])
+        ls = ['']+sorted([d for d in self.Dyes.keys() 
+                           if self.Dyes[d].material==m], key=lambda x:x[2:])
         self.Combobox2_1['values'] = ls
         self.Combobox3_1['values'] = ls
         self.Combobox4_1['values'] = ls

@@ -24,6 +24,7 @@ def SpecEst(concls,specls,C,flour=False):
     elif C > concls[-1]:
         #螢光劑使用最大力度相似形估計法、非螢光劑使用KS力度加法估計(因為螢光劑反射率大於1,於公式不符)
         if flour:
+            '''
             #print('Note : 濃度超出實驗範圍、採取K-M Theory估計法')
             #計算表觀濃度
             ks = KS(min(specls[-1]))
@@ -38,6 +39,11 @@ def SpecEst(concls,specls,C,flour=False):
             else:
                 R = specls[-1] + (est_R_min - min(specls[-1]))/(min(specls[-1])-min(specls[-2]))*(specls[-1]-specls[-2])
                 est_R = np.array([max(i,est_R_min) for i in R])
+            '''
+            n = int(C//concls[-1])
+            concs = np.array([concls[-1] for _ in range(n)] + [ C%concls[-1] ])
+            specs = np.array([SpecEst(concls, specls, c) for c in concs])
+            
         else:
             #KS力度加法估計
             n = int(C//concls[-1])
@@ -91,45 +97,57 @@ def specTrans(specs,specfiber,flour=True):
 #注意:等效、非等效的方法光譜數據為總濃度的光譜、力度加法的光譜為各自濃度的光譜。
 #若含有螢光劑flour=True, 則採用非等效估計
 def Merge(concs,specs,specfiber,method='KSadd',flour=False):
-    if flour:
-        method = 'nonequi'
+    if not flour:
+        method = 'KSadd'
     specs = [j for i,j in zip(concs,specs) if i!=0]
     concs = [i for i in concs if i!=0]
     if  len(concs)== 0:
         return specfiber
     elif len(concs) == 1:
         return specs[0]
-    C = sum(concs)
+    #C = sum(concs)
     if method=='nonequi':                   
         impls = np.array([c*np.power(abs(np.array(specfiber-R)),0.35) for c,R in zip(concs,specs)])
         R_est = np.zeros(len(specfiber))
         for coe, R in zip(impls,specs):
             R_est = R_est + np.array(coe)*np.array(R)/sum(np.array(impls))
-    elif method=='equi':
-        DR_dye = np.array([R-specfiber for R in specs])
-        R_est = np.zeros(len(specfiber)) + specfiber 
-        for c, R in zip(concs,DR_dye):
-            if C>0:
-                R_est = R_est + c/C*R
+    #螢光色鏡向力度估計法
+    elif method=='reflect':
+        ksfiber = np.array([KS(r) for r in specfiber])
+        ksls = np.array([[-KS(2*r2-r1)-KS(r2) if r1>r2 else KS(r1)-KS(r2) 
+                          for r1,r2 in zip(spec,specfiber)] for spec in specs])
+        ks_est = sum(ksls) + ksfiber
+        R_est = np.array([2*r-KS2R(-i)if i<0 else KS2R(i) 
+                          for i,r in zip(ks_est,specfiber)])
     else:
+        #正常算法  
         ksfiber = np.array([KS(r) for r in specfiber])
         ksls = np.array([[KS(r1)-KS(r2) for r1,r2 in zip(spec,specfiber)] for spec in specs ])
         ks_est = sum(ksls) + ksfiber
         R_est = np.array([KS2R(i) for i in ks_est])
+        '''
+        #測試算法
+        ksls = np.array([[KS(r1) for r1,r2 in zip(spec,specfiber)] for spec in specs ])
+        ks_est = sum(ksls)
+        R_est = np.array([KS2R(i) for i in ks_est])
+        '''
     return R_est
 
 #給三染劑濃度,名稱,染劑字典
 #回傳混色後理論光譜
-def Dyes2Spec(concs,names,Dyes):
+def Dyes2Spec(concs,names,Dyes,method,fluo):
     fib = Dyes[names[0]].spec[0]
-    C = sum(concs)
-    specs = [SpecEst(Dyes[n].conc,Dyes[n].spec,C,False) for c,n in zip(concs,names)]
-    return Merge(concs, specs, fib, 'equi',False)
+    if method == 'nonequi':
+        C = sum(concs)
+        specs = [SpecEst(Dyes[n].conc,Dyes[n].spec,C,fluo) for c,n in zip(concs,names)]
+    else:
+        specs = [SpecEst(Dyes[n].conc,Dyes[n].spec,c,False) for c,n in zip(concs,names)]
+    return Merge(concs, specs, fib, method,fluo)
 
 
 def IsFluo(dyes):
-    FDye = ['TF405','TF406','TR106','TR117','TY206','NR105','NY202',
-               'NF404','DR102','DR103','DR104','DY203']
+    FDye = ['TF405','TF406','TF407','TR106','TR117','TY206','NR105','NY202',
+               'NF404','DR102','DR103','DR104','DY203','TLR04','TLY01',]
     for dye in dyes:
         if dye in FDye:
             return True
